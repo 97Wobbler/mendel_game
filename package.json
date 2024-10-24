@@ -11,6 +11,7 @@
   "description": "",
   "dependencies": {
     "express": "^4.21.0",
+    "mongoose": "^8.7.2",
     "phaser": "^3.85.1"
   }
 }
