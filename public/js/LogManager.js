@@ -33,7 +33,7 @@ class LogManager {
 
     // 서버로 로그 전송
     static sendLogsToServer() {
-        fetch("http://3.38.102.55/log", {
+        fetch("/api/log", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
