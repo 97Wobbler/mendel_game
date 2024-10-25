@@ -22,7 +22,7 @@ class Phase1To3Scene extends Phaser.Scene {
         gameManager.startPhase1To3();
 
         const gridRow = 8;
-        const gridColumn = 10;
+        const gridColumn = 11;
         const offsetX = 50;
         const offsetY = 50;
 
@@ -111,27 +111,37 @@ class Phase1To3Scene extends Phaser.Scene {
         const textOffsetX = cellOffsetX + cellWidth / 2;
         const textOffsetY = cellOffsetY + cellHeight / 2;
 
-        const headerData = ["+1", "+2", "+3", "+4 -4", "+5 -3", "+6 -2", "+7 -1"];
-        headerData.forEach((headerText, i) => {
+        const textGap = 10;
+
+        const positiveNumbers = ["+1", "+2", "+3", "+4", "+5", "+6", "+7"];
+        const negativeNumbers = ["", "", "", "-4", "-3", "-2", "-1"];
+
+        for (let i = 0; i < 7; i++) {
             const headerCell = this.add.rectangle(cellOffsetX + i * Field.gridWidth, cellOffsetY, cellWidth, cellHeight, 0xffffff);
             headerCell.setOrigin(0, 0);
             headerCell.setAlpha(0.3);
+            this.headerCells.add(headerCell);
 
-            const headerCellText = this.add.text(textOffsetX + i * Field.gridWidth, textOffsetY, headerText, {
-                font: "italic 20px Arial",
+            const positiveNumber = this.add.text(textOffsetX + i * Field.gridWidth - textGap / 2, textOffsetY, positiveNumbers[i], {
+                font: "bold 22px Arial",
                 fill: "#FF2040",
             });
-            headerCellText.setOrigin(0.5, 0.5);
+            positiveNumber.setOrigin(1, 0.5);
+            this.headerCells.add(positiveNumber);
 
-            this.headerCells.add(headerCell);
-            this.headerCells.add(headerCellText);
-        });
+            const negativeNumber = this.add.text(textOffsetX + i * Field.gridWidth + textGap / 2, textOffsetY, negativeNumbers[i], {
+                font: "bold 22px Arial",
+                fill: "#4020FF",
+            });
+            negativeNumber.setOrigin(0, 0.5);
+            this.headerCells.add(negativeNumber);
+        }
 
-        const eighthCell = this.add.rectangle(cellOffsetX + 7 * Field.gridWidth, cellOffsetY, Field.gridWidth * 3 - 2, cellHeight, 0xffffff);
+        const eighthCell = this.add.rectangle(cellOffsetX + 7 * Field.gridWidth, cellOffsetY, Field.gridWidth * 4 - 2, cellHeight, 0xffffff);
         eighthCell.setOrigin(0, 0);
         eighthCell.setAlpha(0.3);
-        const eighthCellText = this.add.text(textOffsetX + 8 * Field.gridWidth, textOffsetY, "Trash Bin", {
-            font: "italic 20px Arial",
+        const eighthCellText = this.add.text(textOffsetX + 8.5 * Field.gridWidth, textOffsetY, "Trash Bin", {
+            font: "bold 22px Arial",
             fill: "#FF2040",
         });
         eighthCellText.setOrigin(0.5, 0.5);
@@ -174,7 +184,7 @@ class Phase1To3Scene extends Phaser.Scene {
             periodCell.setAlpha(0.3);
 
             const periodCellText = this.add.text(textOffsetX, textOffsetY + i * Field.gridHeight, periodText, {
-                font: "16px Arial",
+                font: "bold 22px Arial",
                 fill: "#807d65",
             });
             periodCellText.setOrigin(0.5, 0.5); // 텍스트를 셀 중앙에 배치

@@ -1,6 +1,6 @@
 class Card {
-    static width = 100;
-    static height = 155;
+    static width = 110;
+    static height = 160;
 
     static draggedCard = null;
     static startLocationType = null;
@@ -323,26 +323,31 @@ class GeneralCard extends Card {
         const colorLine = this.scene.add.rectangle(-Card.width / 2 + 0.5, -Card.height / 2 + 0.5, Card.width - 1, Card.height / 8 - 1, this.elementInfo.color);
         colorLine.setOrigin(0, 0);
 
-        // 원소 기호 텍스트
-        const symbolText = this.scene.add.text(0, -10, this.elementInfo.symbol, { font: "bold 36px Pretendard", fill: "#000" });
+        const weightText = this.scene.add.text(-48, -55, this.elementInfo.weight, { font: "bold 21px Arial", fill: "#000" });
+        weightText.setOrigin(0, 0);
+
+        const symbolText = this.scene.add.text(0, -15, this.elementInfo.symbol, { font: "bold 36px Pretendard", fill: "#000" });
         symbolText.setOrigin(0.5, 0.5);
 
-        // 원소 이름 텍스트
-        const nameText = this.scene.add.text(0, 25, this.elementInfo.name, { font: "14px Arial", fill: "#000" });
+        const nameText = this.scene.add.text(0, 15, this.elementInfo.name, { font: "13px Arial", fill: "#000" });
         nameText.setOrigin(0.5, 0.5);
 
-        const oxidationNumberText = this.scene.add.text(0, 50, this.elementInfo.oxidationNumbers, {
-            font: "italic 16px Arial",
+        const positiveOxidationNumberText = this.scene.add.text(0, 40, this.elementInfo.oxidationNumbers.positive, {
+            font: "bold 16px Arial",
             fill: "#FF2040",
             align: "center",
         });
-        oxidationNumberText.setOrigin(0.5, 0.5);
+        positiveOxidationNumberText.setOrigin(0.5, 0.5);
 
-        const weightText = this.scene.add.text(-42, -48, this.elementInfo.weight, { font: "21px Arial", fill: "#000" });
-        weightText.setOrigin(0, 0);
+        const negativeOxidationNumberText = this.scene.add.text(0, 60, this.elementInfo.oxidationNumbers.negative, {
+            font: "bold 16px Arial",
+            fill: "#4020FF",
+            align: "center",
+        });
+        negativeOxidationNumberText.setOrigin(0.5, 0.5);
 
         // 컨테이너에 모든 요소 추가
-        this.container.add([this.cardBackground, colorLine, symbolText, nameText, weightText, oxidationNumberText]);
+        this.container.add([this.cardBackground, colorLine, symbolText, nameText, weightText, positiveOxidationNumberText, negativeOxidationNumberText]);
 
         // 상호작용 설정
         this.container.setSize(Card.width, Card.height);
@@ -371,16 +376,24 @@ class NobleCard extends Card {
         this.cardBackground = this.scene.add.rectangle(0, 0, Card.width, Card.height, NobleCard.backgroundColor);
         this.setDefaultBorder();
 
-        // 원소 기호 텍스트
-        const symbolText = this.scene.add.text(0, -10, this.elementInfo.symbol, { font: "20px Arial", fill: "#000" });
+        const weightText = this.scene.add.text(-48, -55, this.elementInfo.weight, { font: "bold 21px Arial", fill: "#000" });
+        weightText.setOrigin(0, 0);
+
+        const symbolText = this.scene.add.text(0, -15, this.elementInfo.symbol, { font: "bold 36px Pretendard", fill: "#000" });
         symbolText.setOrigin(0.5, 0.5);
 
-        // 원소 이름 텍스트
-        const nameText = this.scene.add.text(0, 20, this.elementInfo.name, { font: "14px Arial", fill: "#000" });
+        const nameText = this.scene.add.text(0, 15, this.elementInfo.name, { font: "13px Arial", fill: "#000" });
         nameText.setOrigin(0.5, 0.5);
 
+        const oxidationNumberText = this.scene.add.text(0, 50, "0", {
+            font: "bold 16px Arial",
+            fill: "#000000",
+            align: "center",
+        });
+        oxidationNumberText.setOrigin(0.5, 0.5);
+
         // 컨테이너에 모든 요소 추가
-        this.container.add([this.cardBackground, symbolText, nameText]);
+        this.container.add([this.cardBackground, symbolText, nameText, weightText, oxidationNumberText]);
 
         // 상호작용 설정
         this.container.setSize(Card.width, Card.height);
@@ -409,16 +422,31 @@ class EkaCard extends Card {
         this.cardBackground = this.scene.add.rectangle(0, 0, Card.width, Card.height, EkaCard.backgroundColor);
         this.setDefaultBorder();
 
-        // 원소 기호 텍스트
-        const symbolText = this.scene.add.text(0, -10, this.elementInfo.symbol, { font: "20px Arial", fill: "#000" });
+        const weightText = this.scene.add.text(-48, -55, this.elementInfo.weight, { font: "bold 21px Arial", fill: "#000" });
+        weightText.setOrigin(0, 0);
+
+        const symbolText = this.scene.add.text(0, -15, this.elementInfo.symbol, { font: "bold 36px Pretendard", fill: "#000" });
         symbolText.setOrigin(0.5, 0.5);
 
-        // 원소 이름 텍스트
-        const nameText = this.scene.add.text(0, 20, this.elementInfo.name, { font: "14px Arial", fill: "#000" });
+        const nameText = this.scene.add.text(0, 15, this.elementInfo.name, { font: "13px Arial", fill: "#000" });
         nameText.setOrigin(0.5, 0.5);
 
+        const positiveOxidationNumberText = this.scene.add.text(0, 40, this.elementInfo.oxidationNumbers.positive, {
+            font: "bold 16px Arial",
+            fill: "#FF2040",
+            align: "center",
+        });
+        positiveOxidationNumberText.setOrigin(0.5, 0.5);
+
+        const negativeOxidationNumberText = this.scene.add.text(0, 60, this.elementInfo.oxidationNumbers.negative, {
+            font: "bold 16px Arial",
+            fill: "#4020FF",
+            align: "center",
+        });
+        negativeOxidationNumberText.setOrigin(0.5, 0.5);
+
         // 컨테이너에 모든 요소 추가
-        this.container.add([this.cardBackground, symbolText, nameText]);
+        this.container.add([this.cardBackground, symbolText, nameText, weightText, positiveOxidationNumberText, negativeOxidationNumberText]);
 
         // 상호작용 설정
         this.container.setSize(Card.width, Card.height);

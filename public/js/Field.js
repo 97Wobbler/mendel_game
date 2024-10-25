@@ -48,7 +48,7 @@ class Field {
         stroke1.setOrigin(0, 0);
         stroke1.setStrokeStyle(2, Field.strokeColor);
 
-        const stoke2 = this.scene.add.rectangle(this.offsetX + 7 * Field.gridWidth, this.offsetY, Field.gridWidth * 3, Field.gridHeight * this.rows);
+        const stoke2 = this.scene.add.rectangle(this.offsetX + 7 * Field.gridWidth, this.offsetY, Field.gridWidth * 4, Field.gridHeight * this.rows);
         stoke2.setOrigin(0, 0);
         stoke2.setStrokeStyle(2, Field.strokeColor);
     }
@@ -98,7 +98,7 @@ class Field {
     }
 
     isValidOxidationValue(col, oxidationNumbersArray) {
-        if (col >= 7 && col <= 9) return true;
+        if (col >= 7 && col <= 10) return true;
 
         const oxidationStatesByColumn = {
             0: [+1], // 1족
