@@ -118,26 +118,28 @@ class Field {
         return false;
     }
 
-    isValidWeightValue(row, col) {
-        const card = this.grid[row][col];
+    checkWeightRule() {
+        if (gameManager.currentPhase < 4) {
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 11; c++) {
+                    const card = this.grid[r][c];
+                    if (!card || card.cardType === "MendeleevCard") continue;
 
-        let upperCard;
-        let lowerCard;
-        if (row > 0) upperCard = this.grid[row - 1][col];
-        if (row < 7) lowerCard = this.grid[row + 1][col];
+                    const index = r * 11 + c;
+                    for (let i = index + 1; i < 8 * 11; i++) {
+                        const newRow = Math.floor(index / 11);
+                        const newCol = index % 11;
+                        const cardToCompare = this.grid[newRow][newCol];
 
-        let compareResultWithUpperCard = true;
-        let compareResultWithLowerCard = true;
-
-        if (!!upperCard && upperCard.cardType !== "MendeleevCard" && upperCard.elementInfo.weight >= card.elementInfo.weight) {
-            compareResultWithUpperCard = false;
+                        if (!cardToCompare || cardToCompare.cardType === "Mendeleev") continue;
+                        if (card.elementInfo.weight > cardToCompare.elementInfo.weight) return false;
+                    }
+                }
+            }
+            return true;
+        } else {
+            return true;
         }
-
-        if (!!lowerCard && lowerCard.cardType !== "MendeleevCard" && card.elementInfo.weight >= lowerCard.elementInfo.weight) {
-            compareResultWithLowerCard = false;
-        }
-
-        return compareResultWithUpperCard && compareResultWithLowerCard;
     }
 
     highlightCell(row, col) {

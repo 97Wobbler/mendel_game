@@ -8,8 +8,8 @@ class Card {
     constructor(element, cardStack, scene) {
         this.elementInfo = element;
         this.cardStack = cardStack;
-        this.initialX = 300;
-        this.initialY = 300;
+        this.initialX = 0;
+        this.initialY = 0;
         this.scene = scene;
         this.isOnRightPosition = true;
 
@@ -30,8 +30,7 @@ class Card {
     }
 
     createContainer() {
-        // 컨테이너 생성
-        this.container = this.scene.add.container(500, 600);
+        this.container = this.scene.add.container(0, 0);
         this.container.setScrollFactor(0);
         this.container.setDepth(DEPTH.CARD_ON_DECK);
 
@@ -80,7 +79,7 @@ class Card {
         this.setPosition(this.lastValidX, this.lastValidY);
     }
 
-    handleWrongPosition() {
+    handleWrongOxidationNumber() {
         if (this.cardBackground) {
             this.cardBackground.setStrokeStyle(2, 0xff2040); // 붉은색 테두리 설정
         }
@@ -168,9 +167,6 @@ class Card {
             field.updateCardPosition(this, row, col);
             this.updatePosition(snappedX, snappedY);
 
-            // 이전 위치에서의 폴트 체크 업데이트
-            if ((this.row || this.row === 0) && (this.col || this.col === 0)) this.checkFaults(this.row, this.col);
-
             // 현재 row 및 col 저장
             this.row = row;
             this.col = col;
@@ -193,7 +189,7 @@ class Card {
         if (this.isOnRightPosition) {
             this.setDefaultBorder();
         } else {
-            this.handleWrongPosition();
+            this.handleWrongOxidationNumber();
         }
     }
 
@@ -214,39 +210,13 @@ class Card {
             const onRightPeriod = this.elementInfo.period == row + 1;
             const onRightGroup = this.elementInfo.group == col + 1;
 
-            this.isOnRightPosition = onRightPeriod && onRightGroup;
-            this.updateIsOnRightPosition();
+            this.updateIsOnRightPosition(onRightPeriod && onRightGroup);
             return;
         }
 
         const field = this.scene.field;
-
-        for (let checkRow = 0; checkRow <= 7; checkRow++) {
-            const card = field.grid[checkRow][col];
-            if (!card || card.cardType === "MendeleevCard") continue;
-            const isValidOxidationValue = field.isValidOxidationValue(col, card.elementInfo.oxidationNumbersArray);
-
-            let isValidWeightValue = true;
-
-            for (let compareRow = 0; compareRow <= 7; compareRow++) {
-                if (checkRow === compareRow) continue;
-
-                const cardToCompare = field.grid[compareRow][col];
-                if (!cardToCompare || cardToCompare.cardType === "MendeleevCard") continue;
-
-                if (compareRow < checkRow) {
-                    if (cardToCompare.elementInfo.weight >= card.elementInfo.weight) {
-                        isValidWeightValue = false;
-                        break;
-                    }
-                } else if (checkRow < compareRow && card.elementInfo.weight >= cardToCompare.elementInfo.weight) {
-                    isValidWeightValue = false;
-                    break;
-                }
-            }
-
-            card.updateIsOnRightPosition(isValidOxidationValue && isValidWeightValue);
-        }
+        const isValidOxidation = field.isValidOxidationValue(col, this.elementInfo.oxidationNumbersArray);
+        this.updateIsOnRightPosition(isValidOxidation);
     }
 }
 
@@ -295,7 +265,7 @@ class MendeleevCard extends Card {
     }
 
     // 멘델레예프 카드는 테두리 스타일 변경이 필요 없으므로 빈 메서드로 남겨둠
-    handleWrongPosition() {}
+    handleWrongOxidationNumber() {}
     setDefaultBorder() {}
 }
 
