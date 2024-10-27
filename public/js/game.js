@@ -4,7 +4,6 @@ const config = {
     height: 600,
     parent: "game-container",
     scene: [],
-    // scene: [Phase4Scene], // 4단계 작업 위한 임시 세팅
 };
 
 const DEPTH = {
@@ -20,8 +19,6 @@ const DEPTH = {
 const game = new Phaser.Game(config);
 
 const uiManager = new UIManager();
-
-let isDraggingCard = false;
 
 // 시작 버튼 클릭 시 게임 시작
 document.getElementById("start-button").addEventListener("click", function () {

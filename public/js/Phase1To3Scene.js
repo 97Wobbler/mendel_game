@@ -1,6 +1,8 @@
 class Phase1To3Scene extends Phaser.Scene {
     constructor() {
         super({ key: "Phase1To3Scene" });
+
+        // TODO: 전체 UI 관리하는 클래스로 옮기기
         this.characterWidth = 350;
         this.characterHeight = 250;
         this.deckAreaWidth = 350;
@@ -11,74 +13,6 @@ class Phase1To3Scene extends Phaser.Scene {
         this.load.image("mendeleevNormal", "img/mendeleev_normal.png");
         this.load.image("mendeleevConfused", "img/mendeleev_confused.png");
         this.load.image("mendeleevThumbsUp", "img/mendeleev_thumbsup.png");
-        this.load.image("mendeleevCard", "img/joker.png");
-    }
-
-    create() {
-        const elementData = this.cache.text.get("elementData");
-        Element.loadElementsFromCSV(elementData);
-
-        // Phase 1~3 시작
-        gameManager.startPhase1To3();
-
-        const gridRow = 8;
-        const gridColumn = 11;
-        const offsetX = 50;
-        const offsetY = 50;
-
-        // 필드 객체 생성
-        this.field = new Field(gridRow, gridColumn, offsetX, offsetY, this);
-
-        const boundWidth = 2 * offsetX + gridColumn * Field.gridWidth + this.characterWidth;
-        const boundHeight = 2 * offsetY + gridRow * Field.gridHeight;
-
-        this.camera = this.cameras.main;
-        this.camera.setBounds(0, 0, boundWidth, boundHeight);
-        this.camera.setBackgroundColor("#D1CEB6");
-
-        this.input.on("pointermove", (pointer) => {
-            if (pointer.isDown && !isDraggingCard) {
-                this.camera.scrollX -= pointer.velocity.x / this.camera.zoom / 10;
-                this.camera.scrollY -= pointer.velocity.y / this.camera.zoom / 10;
-            }
-        });
-
-        // 필드 헤더 및 UI 생성
-        this.createFixedHeaders();
-        this.createFixedUI();
-        this.mendeleevUI = new MendeleevUI(this);
-
-        uiManager.showPopup("1단계", "산화수에 맞게 원소 카드를 배치하세요!", () => {
-            this.createPhase1Cards(this.deckOffsetX);
-        });
-
-        this.scale.on("resize", this.resizeUI, this);
-    }
-
-    createFixedHeaders() {
-        this.createFixedRow();
-        this.createFixedColumn();
-
-        const temporarySquare = this.add.rectangle(0, 0, 50, 50, 0xd1ceb6);
-        temporarySquare.setOrigin(0, 0);
-        temporarySquare.setScrollFactor(0);
-        temporarySquare.setDepth(DEPTH.FIELD_FIXED_UI);
-    }
-
-    // 정답/오답 피드백을 호출하는 메소드
-    handleCardDrop(isCorrect) {
-        const messageType = isCorrect ? "correct" : "wrong";
-        this.mendeleevUI.showFeedback(messageType);
-
-        if (isCorrect) {
-            gameManager.updateScore(10); // 정답 시 점수 추가
-        }
-
-        if (this.elementCardStack.isEmpty() && this.field.isFull()) {
-            uiManager.showPopup(`Stage ${gameManager.currentPhase} Complete`, "Well done!", () => {
-                gameManager.completeCurrentPhase(this);
-            });
-        }
     }
 
     update() {
@@ -86,13 +20,63 @@ class Phase1To3Scene extends Phaser.Scene {
         this.headerColumnCells.y = -this.camera.scrollY;
     }
 
+    create() {
+        const elementData = this.cache.text.get("elementData");
+        Element.loadElementsFromCSV(elementData);
+
+        gameManager.startGame();
+
+        this.createFieldAndHeaders();
+        this.fixedUI = new FixedUI(this);
+        this.mendeleevUI = this.fixedUI.mendeleevUI;
+
+        this.setCamera();
+        this.setFieldDraggle();
+
+        this.scale.on("resize", this.resizeUI, this);
+
+        uiManager.showPopup("1단계", "산화수에 맞게 원소 카드를 배치하세요!", () => {
+            this.createPhase1Cards();
+        });
+    }
+
+    createFieldAndHeaders() {
+        this.field = new Field(this);
+
+        this.createFixedRow();
+        this.createFixedColumn();
+
+        const temporarySquare = this.add.rectangle(0, 0, Field.offsetX, Field.offsetY, 0xd1ceb6);
+        temporarySquare.setOrigin(0, 0);
+        temporarySquare.setScrollFactor(0);
+        temporarySquare.setDepth(DEPTH.FIELD_FIXED_UI);
+    }
+
+    setCamera() {
+        this.camera = this.cameras.main;
+        this.camera.setBackgroundColor("#D1CEB6");
+
+        const boundWidth = 2 * Field.offsetX + Field.columns * Field.gridWidth + this.characterWidth;
+        const boundHeight = 2 * Field.offsetY + Field.rows * Field.gridHeight;
+        this.camera.setBounds(0, 0, boundWidth, boundHeight);
+    }
+
+    setFieldDraggle() {
+        this.input.on("pointermove", (pointer) => {
+            if (pointer.isDown && !CardMove.isDraggingCard) {
+                this.camera.scrollX -= pointer.velocity.x / this.camera.zoom / 8;
+                this.camera.scrollY -= pointer.velocity.y / this.camera.zoom / 8;
+            }
+        });
+    }
+
     createFixedRow() {
-        const headerArea = this.add.container(this.field.offsetX, 0);
+        const headerArea = this.add.container(Field.offsetX, 0);
         headerArea.setScrollFactor(0);
         headerArea.setDepth(DEPTH.FIELD_FIXED_UI);
 
-        const backgroundRectWidth = this.scale.width - this.characterWidth - this.field.offsetX;
-        const backgroundRectHeight = this.field.offsetX - 2;
+        const backgroundRectWidth = this.scale.width - this.characterWidth - Field.offsetX;
+        const backgroundRectHeight = Field.offsetX - 2;
 
         this.headerRowBackground = this.add.rectangle(0, 0, backgroundRectWidth, backgroundRectHeight, 0xd1ceb6);
         this.headerRowBackground.setOrigin(0, 0);
@@ -153,11 +137,11 @@ class Phase1To3Scene extends Phaser.Scene {
     }
 
     createFixedColumn() {
-        const headerArea = this.add.container(0, this.field.offsetY);
+        const headerArea = this.add.container(0, Field.offsetY);
         headerArea.setScrollFactor(0);
         headerArea.setDepth(DEPTH.FIELD_FIXED_UI);
 
-        const backgroundRectWidth = this.field.offsetY - 2;
+        const backgroundRectWidth = Field.offsetY - 2;
         const backgroundRectHeight = this.scale.height;
 
         this.headerColumnBackground = this.add.rectangle(0, 0, backgroundRectWidth, backgroundRectHeight, 0xd1ceb6);
@@ -196,22 +180,19 @@ class Phase1To3Scene extends Phaser.Scene {
         headerArea.add(this.headerColumnCells);
     }
 
-    createFixedUI() {
-        this.characterOffsetX = this.scale.width - this.characterWidth;
-        this.characterOffsetY = 0;
-        this.characterRect = this.add
-            .rectangle(this.characterOffsetX, this.characterOffsetY, this.characterWidth, this.characterHeight, 0xe8e6db)
-            .setScrollFactor(0);
-        this.characterRect.setOrigin(0, 0);
-        this.characterRect.setDepth(DEPTH.FIXED_UI);
+    handleCardDrop(isCorrect) {
+        const messageType = isCorrect ? "correct" : "wrong";
+        this.mendeleevUI.showFeedback(messageType);
 
-        this.deckAreaHeight = this.scale.height - this.characterHeight;
-        this.deckOffsetX = this.scale.width - this.deckAreaWidth;
-        this.deckOffsetY = this.characterOffsetY + this.characterHeight;
+        const hasAllCardPlaced = this.elementCardStack.isEmpty();
+        const isRightWeightOrder = this.field.checkWeightRule();
+        const isRightOxidationNumbers = true; // TODO: 모든 카드가 산화수 문제가 없는지 확인하는 함수 넣기
 
-        this.deckRect = this.add.rectangle(this.deckOffsetX, this.deckOffsetY, this.deckAreaWidth, this.deckAreaHeight, 0x807d65).setScrollFactor(0);
-        this.deckRect.setOrigin(0, 0);
-        this.deckRect.setDepth(DEPTH.FIXED_UI);
+        if (hasAllCardPlaced && isRightWeightOrder && isRightOxidationNumbers) {
+            uiManager.showPopup(`Stage ${gameManager.currentPhase} Complete`, "Well done!", () => {
+                gameManager.completeCurrentPhase(this);
+            });
+        }
     }
 
     resizeUI(gameSize, baseSize, displaySize, resolution) {
@@ -242,14 +223,8 @@ class Phase1To3Scene extends Phaser.Scene {
             this.elementCardStack.updateCardsPosition(this.elementCardStackOffsetX, this.elementCardStackOffsetY);
         }
 
-        if (this.mendeleevCardStack) {
-            this.mendeleevCardStackOffsetX = this.elementCardStackOffsetX + Card.width + 50;
-            this.mendeleevCardStackOffsetY = this.elementCardStackOffsetY;
-            this.mendeleevCardStack.updateCardsPosition(this.mendeleevCardStackOffsetX, this.mendeleevCardStackOffsetY);
-        }
-
-        if (this.headerRowBackground) this.headerRowBackground.setSize(this.scale.width - this.characterWidth - this.field.offsetX, this.field.offsetX - 2);
-        if (this.headerColumnBackground) this.headerColumnBackground.setSize(this.field.offsetY - 2, this.scale.height);
+        if (this.headerRowBackground) this.headerRowBackground.setSize(this.scale.width - this.characterWidth - Field.offsetX, Field.offsetX - 2);
+        if (this.headerColumnBackground) this.headerColumnBackground.setSize(Field.offsetY - 2, this.scale.height);
     }
 
     createPhase1Cards() {
@@ -258,7 +233,7 @@ class Phase1To3Scene extends Phaser.Scene {
             48, 49, 50, 51, 52, 53, 55, 56,
         ];
 
-        this.elementCardStackOffsetX = this.deckOffsetX + 50;
+        this.elementCardStackOffsetX = this.fixedUI.offsetX + 50;
         this.elementCardStackOffsetY = this.scale.height - Card.height - 100;
         this.elementCardStack = new CardStack(this, this.elementCardStackOffsetX, this.elementCardStackOffsetY);
 
@@ -266,13 +241,7 @@ class Phase1To3Scene extends Phaser.Scene {
             new GeneralCard(Element.getElementByNumber(elementIndex), this.elementCardStack, this);
         }
 
-        this.mendeleevCardStackOffsetX = this.elementCardStackOffsetX + Card.width + 50;
-        this.mendeleevCardStackOffsetY = this.elementCardStackOffsetY;
-        this.mendeleevCardStack = new MendeleevCardStack(this, this.mendeleevCardStackOffsetX, this.mendeleevCardStackOffsetY);
-
-        for (let i = 0; i < 20; i++) {
-            new MendeleevCard(this.mendeleevCardStack, this);
-        }
+        this.elementCardStack.sortAndUpdateCardsPosition();
     }
 
     createPhase2Cards() {
@@ -281,6 +250,8 @@ class Phase1To3Scene extends Phaser.Scene {
         for (const elementIndex of stage2cardsIndex) {
             new NobleCard(Element.getElementByNumber(elementIndex), this.elementCardStack, this);
         }
+
+        this.elementCardStack.sortAndUpdateCardsPosition();
     }
 
     createPhase3Cards() {
@@ -289,5 +260,7 @@ class Phase1To3Scene extends Phaser.Scene {
         for (const elementIndex of stage3cardsIndex) {
             new EkaCard(Element.getElementByNumber(elementIndex), this.elementCardStack, this);
         }
+
+        this.elementCardStack.sortAndUpdateCardsPosition();
     }
 }

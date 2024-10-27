@@ -1,5 +1,5 @@
 class MendeleevUI {
-    constructor(scene) {
+    constructor(scene, container) {
         this.scene = scene;
         this.prevTimer = null;
 
@@ -19,7 +19,7 @@ class MendeleevUI {
         // 텍스트
         this.speechBubbleText = scene.add
             .text(positionX, positionY + 50, "", {
-                font: "16px Arial",
+                font: "20px Arial",
                 fill: "#000",
                 padding: { x: 10, y: 10 },
                 align: "center",

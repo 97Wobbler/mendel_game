@@ -30,7 +30,7 @@ class GameManager {
     }
 
     // Phase 1~3 시작 시 호출
-    startPhase1To3() {
+    startGame() {
         this.currentPhase = 1;
         this.score = 0; // 점수 초기화
         this.gameTime = 0; // 시간 초기화
@@ -40,7 +40,7 @@ class GameManager {
 
     // 현재 Phase가 완료되었을 때 호출
     completeCurrentPhase(scene) {
-        if (this.currentPhase === 4) {
+        if (this.currentPhase === 3) {
             this.endGame();
             return;
         }
@@ -57,33 +57,16 @@ class GameManager {
                     scene.createPhase3Cards();
                     break;
                 }
-                case 4: {
-                    this.saveFieldState(scene.field);
-
-                    scene.scale.off("resize", scene.resizeUI, scene);
-
-                    if (scene.scene.get("Phase4Scene")) {
-                        scene.scene.start("Phase4Scene");
-                    } else {
-                        scene.scene.add("Phase4Scene", Phase4Scene, true);
-                    }
-
-                    scene.scene.stop("Phase1To3Scene");
-                    scene.scene.remove("Phase1To3Scene");
-                    return;
-                }
             }
         });
     }
 
-    // 점수를 업데이트
     updateScore(points) {
         this.score += points;
     }
 
-    // 게임 종료 처리
     endGame() {
-        LogManager.endSession();
+        document.dispatchEvent(new Event("gameEnded"));
         uiManager.showEndScreen(this.score);
     }
 }
