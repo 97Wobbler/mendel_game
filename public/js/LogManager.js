@@ -14,7 +14,6 @@ class LogManager {
                 timestamp: new Date().toISOString(),
                 sessionId: LogManager.sessionId,
                 nickname: LogManager.playerNickname,
-                phase: gameManager.currentPhase,
                 cardNumber,
                 startLocationType,
                 startLocation,

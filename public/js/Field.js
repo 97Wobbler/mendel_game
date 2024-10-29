@@ -71,6 +71,13 @@ class Field {
         return this.cards[row][col] !== null;
     }
 
+    tryMoveCard(worldX, worldY) {
+        const { row, col } = this.getCellFromPosition(worldX, worldY);
+        const isInvalidCellPosition = row === null || col === null || this.isCellOccupied(row, col) || !this.isValidCell(row, col);
+        return isInvalidCellPosition ? false : { row, col };
+    }
+
+    // TODO: 제거
     getValidCellPosition(worldX, worldY) {
         const { row, col } = this.getCellFromPosition(worldX, worldY);
         return !this.isValidCell(row, col) || this.isCellOccupied(row, col) ? { row: null, col: null } : { row, col };
@@ -140,6 +147,19 @@ class Field {
 
                 if (card.elementInfo.weight > cardToCompare.elementInfo.weight) return false;
             }
+        }
+
+        return true;
+    }
+
+    checkOxidationRule() {
+        for (const coord of this.validCells) {
+            const row = coord[0];
+            const col = coord[1];
+
+            const card = this.cards[row][col];
+            if (!card) continue;
+            if (!card.isOnRightPosition) return false;
         }
 
         return true;

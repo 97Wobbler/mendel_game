@@ -26,7 +26,7 @@ document.getElementById("start-button").addEventListener("click", function () {
     if (playerName) {
         LogManager.playerNickname = playerName;
         uiManager.showGameScreen();
-        game.scene.add("Phase1To3Scene", Phase1To3Scene, true);
+        game.scene.add("GameStageManager", GameStageManager, true);
     } else {
         alert("Please enter your name to start the game.");
     }

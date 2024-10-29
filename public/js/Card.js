@@ -29,30 +29,16 @@ class Card {
         this.setPosition(this.initialX, this.initialY);
     }
 
-    moveToField() {
-        this.inDeck = false;
-
-        this.container.setScrollFactor(1);
-        this.container.setDepth(DEPTH.CARD_ON_FIELD);
-
-        this.cardStack.removeCard(this);
-        this.cardStack.updateCardsPosition();
-    }
-
-    resetToDeck() {
-        this.inDeck = true;
-        this.row = null;
-        this.col = null;
-
-        this.setPosition(this.initialX, this.initialY);
-        this.setDefaultBorder();
-        this.container.setScrollFactor(0);
-        this.container.setDepth(DEPTH.CARD_ON_DECK);
-    }
-
     setInitialPosition(x, y) {
         this.initialX = x;
         this.initialY = y;
+    }
+
+    setGridPosition(row, col) {
+        this.prevRow = this.row;
+        this.prevCol = this.col;
+        this.row = row;
+        this.col = col;
     }
 
     setPosition(x, y) {
@@ -80,13 +66,43 @@ class Card {
         this.setPosition(this.lastValidX, this.lastValidY);
     }
 
+    resetToDeck() {
+        this.inDeck = true;
+        this.row = null;
+        this.col = null;
+
+        this.setPosition(this.initialX, this.initialY);
+        this.setDefaultBorder();
+        this.container.setScrollFactor(0);
+        this.container.setDepth(DEPTH.CARD_ON_DECK);
+    }
+
+    moveToField() {
+        this.inDeck = false;
+
+        this.container.setScrollFactor(1);
+        this.container.setDepth(DEPTH.CARD_ON_FIELD);
+
+        this.cardStack.removeCard(this);
+        this.cardStack.updateCardsPosition();
+    }
+
+    setDefaultBorder() {
+        if (this.cardBackground) this.cardBackground.setStrokeStyle(1, 0x000000);
+    }
+
     handleWrongOxidationNumber() {
         if (this.cardBackground) this.cardBackground.setStrokeStyle(3, 0xff2040); // 붉은색 테두리 설정
     }
 
-    // 올바른 위치에 배치된 경우 붉은 테두리 제거
-    setDefaultBorder() {
-        if (this.cardBackground) this.cardBackground.setStrokeStyle(1, 0x000000);
+    updateIsOnRightPosition(isOnRightPosition = this.isOnRightPosition) {
+        this.isOnRightPosition = isOnRightPosition;
+
+        if (this.isOnRightPosition) {
+            this.setDefaultBorder();
+        } else {
+            this.handleWrongOxidationNumber();
+        }
     }
 
     setDragEventListeners() {
@@ -120,41 +136,38 @@ class Card {
 
         const field = this.scene.field;
         field.updateHighlight();
-        
-        const { worldX, worldY } = pointer;
-        const { row, col } = field.getValidCellPosition(worldX, worldY);
 
-        // 유효하지 않은 위치로의 이동일 때 early return
-        if (row === null || col === null) {
+        const { worldX, worldY } = pointer;
+
+        const newPosition = field.tryMoveCard(worldX, worldY);
+        if (newPosition) {
+            if (this.inDeck) this.moveToField();
+
+            const { row, col } = newPosition;
+            this.setGridPosition(row, col);
+
+            field.updateCardPosition(this, row, col);
+            this.checkFaults(col);
+
+            const { x, y } = field.getSnapPosition(row, col);
+            this.updatePosition(x, y);
+
+            this.logCardMove();
+            this.scene.handleCardDrop(this);
+
+            // 모든 업데이트/저장 완료 후 드래그 카드 정보 초기화
+            CardMove.draggedCard = null;
+            CardMove.startLocationType = null;
+        } else {
             if (this.inDeck) this.resetToDeck(); // 덱으로부터의 이동이었을 때
             else this.revertToLastValidPosition(); // 필드로부터의 이동이었을 때
-            return;
         }
-
-        /** 유효한 위치로의 이동일 때 **/
-
-        if (this.inDeck) this.moveToField();
-        this.setGridPosition(row, col);
-
-        const { x: snappedX, y: snappedY } = field.getSnapPosition(row, col);
-        field.updateCardPosition(this, row, col);
-        
-        this.updatePosition(snappedX, snappedY);
-        this.checkFaults(row, col);
-        
-        this.logCardMove();
-        this.scene.handleCardDrop(this.isOnRightPosition);
-
-        // 모든 업데이트/저장 완료 후 드래그 카드 정보 초기화
-        CardMove.draggedCard = null;
-        CardMove.startLocationType = null;
     }
 
-    setGridPosition(row, col) {
-        this.prevRow = this.row;
-        this.prevCol = this.col;
-        this.row = row;
-        this.col = col;
+    checkFaults(col) {
+        const field = this.scene.field;
+        const isValidOxidation = field.isValidOxidationValue(col, this.elementInfo.oxidationNumbersArray);
+        this.updateIsOnRightPosition(isValidOxidation);
     }
 
     logCardMove() {
@@ -169,22 +182,6 @@ class Card {
             },
         });
         document.dispatchEvent(event);
-    }
-
-    updateIsOnRightPosition(isOnRightPosition = this.isOnRightPosition) {
-        this.isOnRightPosition = isOnRightPosition;
-
-        if (this.isOnRightPosition) {
-            this.setDefaultBorder();
-        } else {
-            this.handleWrongOxidationNumber();
-        }
-    }
-
-    checkFaults(row, col) {
-        const field = this.scene.field;
-        const isValidOxidation = field.isValidOxidationValue(col, this.elementInfo.oxidationNumbersArray);
-        this.updateIsOnRightPosition(isValidOxidation);
     }
 }
 
