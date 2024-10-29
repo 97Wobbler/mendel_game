@@ -60,10 +60,14 @@ function hexToNumber(hex) {
 
 function modifyString(inputString) {
     const parts = inputString.split(" ");
-    
-    if (parts.length > 4) {
-        parts[3] = `\n${parts[3]}`;
-    }
 
-    return parts.join(" ");
+    const positive = [];
+    const negative = [];
+
+    parts.forEach((string) => {
+        if (Number(string) > 0) positive.push(string);
+        else negative.push(string);
+    });
+
+    return { positive: positive.join(" "), negative: negative.join(" ") };
 }

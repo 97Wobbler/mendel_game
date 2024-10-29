@@ -4,7 +4,6 @@ const config = {
     height: 600,
     parent: "game-container",
     scene: [],
-    // scene: [Phase4Scene], // 4단계 작업 위한 임시 세팅
 };
 
 const DEPTH = {
@@ -21,15 +20,13 @@ const game = new Phaser.Game(config);
 
 const uiManager = new UIManager();
 
-let isDraggingCard = false;
-
 // 시작 버튼 클릭 시 게임 시작
 document.getElementById("start-button").addEventListener("click", function () {
     const playerName = document.getElementById("player-name-input").value;
     if (playerName) {
         LogManager.playerNickname = playerName;
         uiManager.showGameScreen();
-        game.scene.add("Phase1To3Scene", Phase1To3Scene, true);
+        game.scene.add("GameStageManager", GameStageManager, true);
     } else {
         alert("Please enter your name to start the game.");
     }

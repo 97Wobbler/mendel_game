@@ -1,24 +1,25 @@
 class Field {
-    static gap = 10;
+    static gap = 15;
     static gridWidth = Card.width + Field.gap;
     static gridHeight = Card.height + Field.gap;
 
+    static rows = 8;
+    static columns = 11;
+    static offsetX = 50;
+    static offsetY = 50;
+
     static strokeColor = 0xffffff;
 
-    constructor(rows, columns, offsetX, offsetY, scene) {
-        this.rows = rows;
-        this.columns = columns;
-        this.offsetX = offsetX;
-        this.offsetY = offsetY;
+    static highlightedCell = null;
+
+    constructor(scene) {
         this.scene = scene;
 
-        this.faultCardSet = [];
-
-        this.grid = [];
-        for (let row = 0; row < rows; row++) {
-            this.grid[row] = [];
-            for (let col = 0; col < columns; col++) {
-                this.grid[row][col] = null;
+        this.cards = [];
+        for (let row = 0; row < Field.rows; row++) {
+            this.cards[row] = [];
+            for (let col = 0; col < Field.columns; col++) {
+                this.cards[row][col] = null;
             }
         }
 
@@ -27,78 +28,84 @@ class Field {
 
     drawCells() {
         this.gridRect = [];
+        this.validCells = [];
 
-        for (let i = 0; i < this.rows; i++) {
-            const y = this.offsetY + i * Field.gridHeight;
+        const periods = [
+            [0, 7, 8, 9, 10],
+            Array.from({ length: 11 }, (_, i) => i),
+            Array.from({ length: 11 }, (_, i) => i),
+            Array.from({ length: 11 }, (_, i) => i),
+            Array.from({ length: 11 }, (_, i) => i),
+            Array.from({ length: 11 }, (_, i) => i),
+            Array.from({ length: 11 }, (_, i) => i),
+            [0, 1],
+        ];
 
-            this.gridRect[i] = [];
-            for (let j = 0; j < this.columns; j++) {
-                const x = this.offsetX + j * Field.gridWidth;
+        for (let row = 0; row < Field.rows; row++) {
+            this.gridRect[row] = [];
+            for (const col of periods[row]) {
+                const x = Field.offsetX + col * Field.gridWidth;
+                const y = Field.offsetY + row * Field.gridHeight;
 
                 const rect = this.scene.add.rectangle(x, y, Field.gridWidth, Field.gridHeight);
                 rect.setOrigin(0, 0);
                 rect.setStrokeStyle(1, Field.strokeColor);
                 rect.setAlpha(0.6);
 
-                this.gridRect[i][j] = rect;
+                this.gridRect[row][col] = rect;
+                this.validCells.push([row, col]);
             }
         }
 
-        const stroke1 = this.scene.add.rectangle(this.offsetX, this.offsetY, Field.gridWidth * 7, Field.gridHeight * this.rows);
-        stroke1.setOrigin(0, 0);
-        stroke1.setStrokeStyle(2, Field.strokeColor);
-
-        const stoke2 = this.scene.add.rectangle(this.offsetX + 7 * Field.gridWidth, this.offsetY, Field.gridWidth * 3, Field.gridHeight * this.rows);
+        // TODO: stroke 라인 수정하기: add.graphics로 가야 할듯?
+        const stoke2 = this.scene.add.rectangle(Field.offsetX + 7 * Field.gridWidth, Field.offsetY, Field.gridWidth * 4, Field.gridHeight * 7);
         stoke2.setOrigin(0, 0);
         stoke2.setStrokeStyle(2, Field.strokeColor);
     }
 
-    getCellFromPosition(worldX, worldY) {
-        const col = Math.floor((worldX - this.offsetX) / Field.gridWidth);
-        const row = Math.floor((worldY - this.offsetY) / Field.gridHeight);
-
-        const isValidPosition = col >= 0 && col < this.columns && row >= 0 && row < this.rows;
-        return isValidPosition ? { row, col } : { row: null, col: null };
-    }
-
-    placeCard(card, row, col) {
-        this.grid[row][col] = card;
-    }
-
-    updateCardPosition(card, row, col) {
-        for (let r = 0; r < this.rows; r++) {
-            for (let c = 0; c < this.columns; c++) {
-                if (this.grid[r][c] === card) {
-                    this.grid[r][c] = null;
-                }
-            }
-        }
-        this.placeCard(card, row, col);
-    }
-
-    getSnapPosition(row, col) {
-        const x = this.offsetX + col * Field.gridWidth + Field.gap / 2;
-        const y = this.offsetY + row * Field.gridHeight + Field.gap / 2;
-        return { x, y };
+    isValidCell(row, col) {
+        return this.validCells.some(([validRow, validCol]) => row === validRow && col === validCol);
     }
 
     isCellOccupied(row, col) {
-        return this.grid[row][col] !== null;
+        return this.cards[row][col] !== null;
     }
 
-    isFull() {
-        for (let row = 0; row < this.rows; row++) {
-            for (let col = 0; col <= 6; col++) {
-                if (!this.isCellOccupied(row, col)) {
-                    return false;
-                }
-            }
+    tryMoveCard(worldX, worldY) {
+        const { row, col } = this.getCellFromPosition(worldX, worldY);
+        const isInvalidCellPosition = row === null || col === null || this.isCellOccupied(row, col) || !this.isValidCell(row, col);
+        return isInvalidCellPosition ? false : { row, col };
+    }
+
+    // TODO: 제거
+    getValidCellPosition(worldX, worldY) {
+        const { row, col } = this.getCellFromPosition(worldX, worldY);
+        return !this.isValidCell(row, col) || this.isCellOccupied(row, col) ? { row: null, col: null } : { row, col };
+    }
+
+    getCellFromPosition(worldX, worldY) {
+        const row = Math.floor((worldY - Field.offsetY) / Field.gridHeight);
+        const col = Math.floor((worldX - Field.offsetX) / Field.gridWidth);
+
+        const isValidPosition = col >= 0 && col < Field.columns && row >= 0 && row < Field.rows;
+        return isValidPosition ? { row, col } : { row: null, col: null };
+    }
+
+    getSnapPosition(row, col) {
+        const x = Field.offsetX + col * Field.gridWidth + Field.gap / 2;
+        const y = Field.offsetY + row * Field.gridHeight + Field.gap / 2;
+        return { x, y };
+    }
+
+    updateCardPosition(card, row, col) {
+        if (card.prevRow != null && card.prevCol != null) {
+            this.cards[card.prevRow][card.prevCol] = null;
         }
-        return true;
+        this.cards[row][col] = card;
     }
 
     isValidOxidationValue(col, oxidationNumbersArray) {
-        if (col >= 7 && col <= 9) return true;
+        if (col >= 7 && col <= 10) return true;
 
         const oxidationStatesByColumn = {
             0: [+1], // 1족
@@ -118,29 +125,63 @@ class Field {
         return false;
     }
 
-    isValidWeightValue(row, col) {
-        const card = this.grid[row][col];
+    checkWeightRule() {
+        for (const coord of this.validCells) {
+            const row = coord[0];
+            const col = coord[1];
 
-        let upperCard;
-        let lowerCard;
-        if (row > 0) upperCard = this.grid[row - 1][col];
-        if (row < 7) lowerCard = this.grid[row + 1][col];
+            const card = this.cards[row][col];
+            const cardIndex = row * 11 + col;
 
-        let compareResultWithUpperCard = true;
-        let compareResultWithLowerCard = true;
+            if (!card) continue;
 
-        if (!!upperCard && upperCard.cardType !== "MendeleevCard" && upperCard.elementInfo.weight >= card.elementInfo.weight) {
-            compareResultWithUpperCard = false;
+            for (let i = cardIndex + 1; i < 8 * 11; i++) {
+                const newRow = Math.floor(i / 11);
+                const newCol = i % 11;
+
+                const isValidCell = this.isValidCell(newRow, newCol);
+                if (!isValidCell) continue;
+
+                const cardToCompare = this.cards[newRow][newCol];
+                if (!cardToCompare) continue;
+
+                if (card.elementInfo.weight > cardToCompare.elementInfo.weight) return false;
+            }
         }
 
-        if (!!lowerCard && lowerCard.cardType !== "MendeleevCard" && card.elementInfo.weight >= lowerCard.elementInfo.weight) {
-            compareResultWithLowerCard = false;
-        }
-
-        return compareResultWithUpperCard && compareResultWithLowerCard;
+        return true;
     }
 
+    checkOxidationRule() {
+        for (const coord of this.validCells) {
+            const row = coord[0];
+            const col = coord[1];
+
+            const card = this.cards[row][col];
+            if (!card) continue;
+            if (!card.isOnRightPosition) return false;
+        }
+
+        return true;
+    }
+
+    updateHighlight(worldX, worldY) {
+        const { row, col } = this.getCellFromPosition(worldX, worldY);
+
+        this.clearHighlight();
+        this.highlightCell(row, col);
+    }
+
+    // updateHighlight(row, col) {
+    //     this.clearHighlight();
+    //     this.highlightCell(row, col);
+    // }
+
     highlightCell(row, col) {
+        if (row == null || col == null || this.isCellOccupied(row, col)) return;
+
+        this.highlightedCell = { row, col };
+
         const cell = this.gridRect[row][col];
         if (cell) {
             cell.setStrokeStyle(5, Field.strokeColor);
@@ -148,104 +189,16 @@ class Field {
         }
     }
 
-    clearHighlight(row, col) {
+    clearHighlight() {
+        if (!this.highlightedCell) return;
+
+        const { row, col } = this.highlightedCell;
         const cell = this.gridRect[row][col];
         if (cell) {
             cell.setStrokeStyle(1, Field.strokeColor); // 원래 흰색 테두리로 복원
             cell.setAlpha(0.6);
         }
-    }
-}
 
-class Phase4Field extends Field {
-    constructor(offsetX, offsetY, scene) {
-        super(6, 18, offsetX, offsetY, scene);
-    }
-
-    drawCells() {
-        this.gridRect = [];
-        this.validCells = [];
-
-        // 4단계 필드에 맞는 주기율표 그리기
-        const periods = [
-            [0, 17], // 1주기: 1족과 18족만
-            [0, 1, 12, 13, 14, 15, 16, 17], // 2주기: 1~2족과 13~18족
-            [0, 1, 12, 13, 14, 15, 16, 17], // 3주기: 1~2족과 13~18족
-            Array.from({ length: 18 }, (_, i) => i), // 4주기: 전체 열
-            Array.from({ length: 18 }, (_, i) => i), // 5주기: 전체 열
-            [0, 1], // 6주기: 1~2족
-        ];
-
-        for (let row = 0; row < periods.length; row++) {
-            this.gridRect[row] = [];
-            for (const col of periods[row]) {
-                const x = this.offsetX + col * Field.gridWidth;
-                const y = this.offsetY + row * Field.gridHeight;
-
-                const rect = this.scene.add.rectangle(x, y, Field.gridWidth, Field.gridHeight);
-                rect.setOrigin(0, 0);
-                rect.setStrokeStyle(1, Field.strokeColor);
-                rect.setAlpha(0.6);
-
-                this.gridRect[row][col] = rect;
-                this.validCells.push([row, col]);
-            }
-        }
-
-        const strokeThickness = 2;
-
-        const stroke1 = this.scene.add.rectangle(
-            this.offsetX + 0 * Field.gridWidth,
-            this.offsetY + 0 * Field.gridHeight,
-            1 * Field.gridWidth,
-            1 * Field.gridHeight
-        );
-        stroke1.setOrigin(0, 0);
-        stroke1.setStrokeStyle(strokeThickness, Field.strokeColor);
-        stroke1.setAlpha(0.8);
-
-        const stroke2 = this.scene.add.rectangle(
-            this.offsetX + 17 * Field.gridWidth,
-            this.offsetY + 0 * Field.gridHeight,
-            1 * Field.gridWidth,
-            1 * Field.gridHeight
-        );
-        stroke2.setOrigin(0, 0);
-        stroke2.setStrokeStyle(strokeThickness, Field.strokeColor);
-        stroke2.setAlpha(0.8);
-
-        const stroke3 = this.scene.add.rectangle(
-            this.offsetX + 0 * Field.gridWidth,
-            this.offsetY + 1 * Field.gridHeight,
-            2 * Field.gridWidth,
-            5 * Field.gridHeight
-        );
-        stroke3.setOrigin(0, 0);
-        stroke3.setStrokeStyle(strokeThickness, Field.strokeColor);
-        stroke3.setAlpha(0.8);
-
-        const stroke4 = this.scene.add.rectangle(
-            this.offsetX + 12 * Field.gridWidth,
-            this.offsetY + 1 * Field.gridHeight,
-            6 * Field.gridWidth,
-            4 * Field.gridHeight
-        );
-        stroke4.setOrigin(0, 0);
-        stroke4.setStrokeStyle(strokeThickness, Field.strokeColor);
-        stroke4.setAlpha(0.8);
-
-        const stroke5 = this.scene.add.rectangle(
-            this.offsetX + 2 * Field.gridWidth,
-            this.offsetY + 3 * Field.gridHeight,
-            10 * Field.gridWidth,
-            2 * Field.gridHeight
-        );
-        stroke5.setOrigin(0, 0);
-        stroke5.setStrokeStyle(strokeThickness, Field.strokeColor);
-        stroke5.setAlpha(0.8);
-    }
-
-    isValidDropPosition(row, col) {
-        return this.validCells.some(([validRow, validCol]) => row === validRow && col === validCol);
+        Field.highlightedCell = null;
     }
 }
