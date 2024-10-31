@@ -4,6 +4,18 @@ class UIManager {
         this.endScreen = document.getElementById("end-screen");
         this.stagePopup = document.getElementById("stagePopup");
         this.gameContainer = document.getElementById("game-container");
+        this.stagePopupOverlay = document.getElementById("stagePopupOverlay");
+        this.overlayTitle = document.getElementById("overlayTitle");
+        this.slideContainer = document.getElementById("slideContainer");
+        this.slideImage = document.getElementById("slideImage");
+        this.slideText = document.getElementById("slideText");
+        this.nextSlideButton = document.getElementById("nextSlideButton");
+        this.confirmButton = document.getElementById("confirmButton");
+        this.slides = [];
+        this.currentSlideIndex = 0;
+
+        this.nextSlideButton.onclick = () => this.showNextSlide();
+        this.confirmButton.onclick = () => this.hideOverlay();
     }
 
     // 팝업 표시
@@ -37,5 +49,40 @@ class UIManager {
         this.endScreen.style.display = "flex";
         this.gameContainer.style.display = "none";
         document.getElementById("final-score").textContent = `Your Score: ${finalScore}`;
+    }
+
+    showOverlay(title, slides, callback) {
+        this.overlayTitle.innerText = title;
+        this.slides = slides;
+        this.currentSlideIndex = 0;
+        this.overlayCallback = callback; // callback 저장
+        this.updateSlideContent();
+        this.confirmButton.classList.add("hidden");
+        this.stagePopupOverlay.classList.remove("hidden");
+    }
+
+    hideOverlay() {
+        this.stagePopupOverlay.classList.add("hidden");
+        if (this.overlayCallback) this.overlayCallback(); // 콜백 실행
+        this.overlayCallback = null; // 콜백 초기화
+    }
+
+    showNextSlide() {
+        if (this.currentSlideIndex < this.slides.length - 1) {
+            this.currentSlideIndex++;
+            this.updateSlideContent();
+        }
+
+        if (this.currentSlideIndex === this.slides.length - 1) {
+            this.nextSlideButton.classList.add("hidden");
+            this.confirmButton.classList.remove("hidden");
+        }
+    }
+
+    updateSlideContent() {
+        const slide = this.slides[this.currentSlideIndex];
+        this.slideImage.src = slide.image;
+        this.slideText.innerText = slide.text;
+        this.nextSlideButton.classList.toggle("hidden", this.currentSlideIndex >= this.slides.length - 1);
     }
 }

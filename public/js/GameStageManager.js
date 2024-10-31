@@ -37,7 +37,14 @@ class GameStageManager extends Phaser.Scene {
 
         this.scale.on("resize", this.resizeUI, this);
 
-        uiManager.showPopup("1단계", "산화수에 맞게 원소 카드를 배치하세요!", () => {
+        // TODO: fix contents
+        const slides = [
+            { image: "img/slide1.png", text: "This is the first slide description." },
+            { image: "img/slide2.png", text: "Second slide provides more insight." },
+            { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+        ];
+
+        uiManager.showOverlay("Stage 1 - Historical Context", slides, () => {
             this.startGame();
         });
     }
@@ -53,21 +60,63 @@ class GameStageManager extends Phaser.Scene {
     }
 
     startPhase(index) {
-        if (index >= this.phases.length) {
-            this.endGame();
-            return;
-        }
-
         if (this.currentPhase) this.currentPhase.destroy();
         this.currentPhase = this.phases[index];
-        this.currentPhase.init();
-        this.currentPhase.onComplete(() => {
-            this.currentPhaseIndex++;
+        if (this.currentPhase) this.currentPhase.init();
 
-            uiManager.showPopup(`Stage ${this.currentPhaseIndex + 1} Complete`, "Well done!", () => {
-                this.startPhase(this.currentPhaseIndex);
-            });
-        });
+        const phaseNumber = this.currentPhaseIndex + 1;
+        switch (phaseNumber) {
+            case 1: {
+                // TODO: fix contents
+
+                this.currentPhase.onComplete(() => {
+                    const slides = [
+                        { image: "img/slide1.png", text: "This is the first slide description." },
+                        { image: "img/slide2.png", text: "Second slide provides more insight." },
+                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+                    ];
+
+                    uiManager.showOverlay("Stage 2 - Historical Context", slides, () => {
+                        this.currentPhaseIndex++;
+                        this.startPhase(this.currentPhaseIndex);
+                    });
+                });
+                break;
+            }
+            case 2: {
+                // TODO: fix contents
+
+                this.currentPhase.onComplete(() => {
+                    const slides = [
+                        { image: "img/slide1.png", text: "This is the first slide description." },
+                        { image: "img/slide2.png", text: "Second slide provides more insight." },
+                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+                    ];
+
+                    uiManager.showOverlay("Stage 3 - Historical Context", slides, () => {
+                        this.currentPhaseIndex++;
+                        this.startPhase(this.currentPhaseIndex);
+                    });
+                });
+                break;
+            }
+            case 3: {
+                // TODO: fix contents
+
+                this.currentPhase.onComplete(() => {
+                    const slides = [
+                        { image: "img/slide1.png", text: "This is the first slide description." },
+                        { image: "img/slide2.png", text: "Second slide provides more insight." },
+                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+                    ];
+
+                    uiManager.showOverlay("All Completed!", slides, () => {
+                        this.endGame();
+                    });
+                });
+                break;
+            }
+        }
     }
 
     createFieldAndHeaders() {
@@ -93,7 +142,7 @@ class GameStageManager extends Phaser.Scene {
 
     setFieldDraggle() {
         this.input.on("pointermove", (pointer) => {
-            if (pointer.isDown && !CardMove.isDraggingCard) {
+            if (pointer.isDown && !Card.isDraggingCard) {
                 this.camera.scrollX -= pointer.velocity.x / this.camera.zoom / 8;
                 this.camera.scrollY -= pointer.velocity.y / this.camera.zoom / 8;
             }
@@ -337,10 +386,8 @@ class Phase2 {
         this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소 카드의 산화수 만족하기"));
 
         this.missions.forEach((mission, index) => {
-            mission.setPosition(25, 270 + index * 30);
+            mission.setPosition(25, 350 + index * 30);
         });
-
-        this.checkMissionCompletion();
     }
 
     checkMissionCompletion(card) {
@@ -407,10 +454,8 @@ class Phase3 {
         this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소의 산화수 만족시키기"));
 
         this.missions.forEach((mission, index) => {
-            mission.setPosition(25, 270 + index * 30);
+            mission.setPosition(25, 350 + index * 30);
         });
-
-        this.checkMissionCompletion();
     }
 
     checkMissionCompletion(card) {
