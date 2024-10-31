@@ -1,4 +1,7 @@
 class Card {
+    static isDragging = false;
+    static draggedCard = null;
+
     static width = 110;
     static height = 160;
 
@@ -112,10 +115,10 @@ class Card {
     }
 
     handleDragStart() {
-        CardMove.isDraggingCard = true;
+        Card.isDraggingCard = true;
 
-        CardMove.draggedCard = this;
-        CardMove.startLocationType = this.inDeck ? "deck" : "field";
+        Card.draggedCard = this;
+        Card.startLocationType = this.inDeck ? "deck" : "field";
 
         this.container.setDepth(DEPTH.CARD_ON_DRAG);
     }
@@ -131,7 +134,7 @@ class Card {
     }
 
     handleDragEnd(pointer) {
-        CardMove.isDraggingCard = false;
+        Card.isDraggingCard = false;
         this.container.setDepth(DEPTH.CARD_ON_FIELD);
 
         const field = this.scene.field;
@@ -156,8 +159,8 @@ class Card {
             this.scene.handleCardDrop(this);
 
             // 모든 업데이트/저장 완료 후 드래그 카드 정보 초기화
-            CardMove.draggedCard = null;
-            CardMove.startLocationType = null;
+            Card.draggedCard = null;
+            Card.startLocationType = null;
         } else {
             if (this.inDeck) this.resetToDeck(); // 덱으로부터의 이동이었을 때
             else this.revertToLastValidPosition(); // 필드로부터의 이동이었을 때
@@ -174,7 +177,7 @@ class Card {
         const event = new CustomEvent("cardMoved", {
             detail: {
                 cardNumber: this.elementInfo.number,
-                startLocationType: CardMove.startLocationType,
+                startLocationType: Card.startLocationType,
                 startLocation: { row: this.prevRow, column: this.prevCol },
                 endLocationType: "field",
                 endLocation: { row: this.row, column: this.col },

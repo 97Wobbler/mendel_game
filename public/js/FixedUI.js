@@ -5,13 +5,29 @@ class FixedUI {
 
     constructor(scene) {
         this.scene = scene;
+        this.container = null;
 
         this.updateOffset();
         this.createContainer();
         this.drawDeckBackground();
+        this.setMissionDescriptionText();
 
         this.mendeleevUI = new MendeleevUI(scene, this.container);
         this.elementCardStack = new CardStack(this.scene, this.elementCardStackOffsetX, this.elementCardStackOffsetY);
+    }
+
+    setMissionDescriptionText() {
+        const text = "클리어 조건";
+        this.text = this.scene.add.text(25, 300, text, {
+            font: "bold 20px Arial",
+            fill: "#E8E5D0",
+            padding: { x: 10, y: 10 },
+            align: "center",
+            wordWrap: { width: FixedUI.fixedUIWidth - 50 },
+        });
+        this.text.setDepth(DEPTH.SPEECH_BUBBLE);
+
+        this.container.add(this.text);
     }
 
     updateOffset() {
