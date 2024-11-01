@@ -39,9 +39,10 @@ class GameStageManager extends Phaser.Scene {
 
         // TODO: fix contents
         const slides = [
-            { image: "img/slide1.png", text: "This is the first slide description." },
-            { image: "img/slide2.png", text: "Second slide provides more insight." },
-            { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+            { image: "img/1-1.png", text: "주어진 원소 카드를 필드에 배치합니다." },
+            { image: "img/1-2.png", text: "각 열의 산화수를 만족하도록 카드를 배치해야 합니다." },
+            { image: "img/1-3.png", text: "Trash Bin에 있는 카드는 산화수 규칙을 무시합니다." },
+            { image: "img/1-4.png", text: "모든 카드는 좌측 상단부터 원자량 순서대로 배치되어야 합니다." },
         ];
 
         uiManager.showOverlay("Stage 1 - Historical Context", slides, () => {
