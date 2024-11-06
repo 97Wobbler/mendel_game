@@ -66,6 +66,17 @@ class MendeleevUI {
         });
     }
 
+    onGameEnd() {
+        this.characterSprite.setTexture("mendeleevThumbsUp");
+
+        if (this.prevTimer) this.prevTimer.remove(false);
+
+        this.speechBubbleText.setText("All Missions Cleared!").setVisible(true);
+        this.speechBubbleGraphics.setVisible(true);
+
+        this.drawSpeechBubble(this.speechBubbleText.x, this.speechBubbleText.y);
+    }
+
     drawSpeechBubble(x, y) {
         const bubbleWidth = 220; // 말풍선의 너비
         const bubbleHeight = 80; // 말풍선의 높이

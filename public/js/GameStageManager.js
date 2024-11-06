@@ -8,6 +8,8 @@ class GameStageManager extends Phaser.Scene {
         // TODO: 전체 UI 관리하는 클래스로 옮기기
         this.characterHeight = 250;
         this.deckAreaWidth = 350;
+
+        this.isGameEnd = false;
     }
 
     preload() {
@@ -37,27 +39,38 @@ class GameStageManager extends Phaser.Scene {
 
         this.scale.on("resize", this.resizeUI, this);
 
-        // TODO: fix contents
+        this.startGame();
+    }
+
+    startGame() {
+        this.currentPhaseIndex = 0;
+
         const slides = [
-            { image: "img/1-1.png", text: "주어진 원소 카드를 필드에 배치합니다." },
+            {
+                image: "img/1-0.jpg",
+                text: "1869년, 러시아의 화학자 멘델레예프는 당시까지 알려진 원소들을 체계적으로 배열하기 위해 노력했습니다.<br>그는 원소들의 <b>원자량과 산화 상태</b>에 주목하며 주기적인 규칙성을 발견하고자 했습니다.",
+            },
+            {
+                image: "img/1-0.jpg",
+                text: "이 단계에서는 멘델레예프처럼 원소들을 원자량 순서와 산화 상태에 따라 주기율표에 배치해보세요.<br>빈칸이 남는다면, 멘델레예프도 그러했듯 미래에 발견될 원소들을 예측하며 빈칸을 남겨둡니다.",
+            },
+            { image: "img/1-1.png", text: "주어진 원소 카드를 <b>모두</b> 필드에 배치해야 합니다." },
             { image: "img/1-2.png", text: "각 열의 산화수를 만족하도록 카드를 배치해야 합니다." },
             { image: "img/1-3.png", text: "Trash Bin에 있는 카드는 산화수 규칙을 무시합니다." },
             { image: "img/1-4.png", text: "모든 카드는 좌측 상단부터 원자량 순서대로 배치되어야 합니다." },
         ];
 
-        uiManager.showOverlay("Stage 1 - Historical Context", slides, () => {
-            this.startGame();
+        uiManager.showOverlay("멘델레예프 게임 1단계", slides, () => {
+            this.startPhase(this.currentPhaseIndex);
         });
     }
 
-    startGame() {
-        this.currentPhaseIndex = 0;
-        this.startPhase(this.currentPhaseIndex);
-    }
-
     endGame() {
-        document.dispatchEvent(new Event("gameEnded"));
-        uiManager.showEndScreen(this.score);
+        // document.dispatchEvent(new Event("gameEnded"));
+        // uiManager.showEndScreen(this.score);
+
+        this.mendeleevUI.onGameEnd();
+        this.isGameEnd = true;
     }
 
     startPhase(index) {
@@ -68,16 +81,20 @@ class GameStageManager extends Phaser.Scene {
         const phaseNumber = this.currentPhaseIndex + 1;
         switch (phaseNumber) {
             case 1: {
-                // TODO: fix contents
-
                 this.currentPhase.onComplete(() => {
                     const slides = [
-                        { image: "img/slide1.png", text: "This is the first slide description." },
-                        { image: "img/slide2.png", text: "Second slide provides more insight." },
-                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+                        {
+                            image: "img/2-0.jpg",
+                            text: "멘델레예프는 주기율표에 <b>빈칸</b>이 생기는 것을 두려워하지 않았고,<br>이를 아직 발견되지 않은 원소들의 자리라고 예측했습니다.",
+                        },
+                        {
+                            image: "img/2-0.jpg",
+                            text: "그는 <b>에카-붕소</b>와 같은 이름으로 그 성질까지도 예측했으며,<br>후에 실제로 해당 원소들이 발견되면서 그의 예측이 맞아떨어졌습니다.",
+                        },
+                        { image: "img/2-0.jpg", text: "이제 새로 발견된 에카-원소 카드들을 적절한 위치에 채워넣어 보세요." },
                     ];
 
-                    uiManager.showOverlay("Stage 2 - Historical Context", slides, () => {
+                    uiManager.showOverlay("멘델레예프 게임 2단계", slides, () => {
                         this.currentPhaseIndex++;
                         this.startPhase(this.currentPhaseIndex);
                     });
@@ -85,16 +102,17 @@ class GameStageManager extends Phaser.Scene {
                 break;
             }
             case 2: {
-                // TODO: fix contents
-
                 this.currentPhase.onComplete(() => {
                     const slides = [
-                        { image: "img/slide1.png", text: "This is the first slide description." },
-                        { image: "img/slide2.png", text: "Second slide provides more insight." },
-                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
+                        { image: "img/3-0.jpg", text: "멘델레예프의 주기율표가 발표된 후, 과학자들은 <b>불활성 기체</b> 원소들을 발견했습니다." },
+                        {
+                            image: "img/3-0.jpg",
+                            text: " 헬륨, 네온, 아르곤 등은 주기율표에 없던 원소들이었으나, 나중에 주기율표에 새로운 열로 추가되었습니다.",
+                        },
+                        { image: "img/3-0.jpg", text: "이제 새로 발견된 불활성 기체 카드들을 적절한 위치에 채워넣어 보세요." },
                     ];
 
-                    uiManager.showOverlay("Stage 3 - Historical Context", slides, () => {
+                    uiManager.showOverlay("멘델레예프 게임 3단계", slides, () => {
                         this.currentPhaseIndex++;
                         this.startPhase(this.currentPhaseIndex);
                     });
@@ -102,16 +120,8 @@ class GameStageManager extends Phaser.Scene {
                 break;
             }
             case 3: {
-                // TODO: fix contents
-
                 this.currentPhase.onComplete(() => {
-                    const slides = [
-                        { image: "img/slide1.png", text: "This is the first slide description." },
-                        { image: "img/slide2.png", text: "Second slide provides more insight." },
-                        { image: "img/slide3.png", text: "The final slide, wrapping up the stage." },
-                    ];
-
-                    uiManager.showOverlay("All Completed!", slides, () => {
+                    uiManager.showPopup("게임 완료!", "3단계까지 성공적으로 완료했습니다.", () => {
                         this.endGame();
                     });
                 });
@@ -303,6 +313,7 @@ class Phase1 {
         }
 
         this.scene.fixedUI.elementCardStack.sortAndUpdateCardsPosition();
+        this.scene.fixedUI.elementCardStack.setAllCardsCount(stage1cardsIndex.length);
     }
 
     createMissionTexts() {
@@ -374,17 +385,19 @@ class Phase2 {
     }
 
     createCards() {
-        const stage2cardsIndex = [2, 10, 18, 36, 54];
+        const stage3cardsIndex = [21, 31, 32, 43];
 
-        for (const elementIndex of stage2cardsIndex) {
-            new NobleCard(Element.getElementByNumber(elementIndex), this.scene.fixedUI.elementCardStack, this.scene);
+        for (const elementIndex of stage3cardsIndex) {
+            new EkaCard(Element.getElementByNumber(elementIndex), this.scene.fixedUI.elementCardStack, this.scene);
         }
 
         this.scene.fixedUI.elementCardStack.sortAndUpdateCardsPosition();
+        this.scene.fixedUI.elementCardStack.setAllCardsCount(stage3cardsIndex.length);
     }
 
     createMissionTexts() {
-        this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소 카드의 산화수 만족하기"));
+        this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소 카드의 원자량 순서 배치"));
+        this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소의 산화수 만족시키기"));
 
         this.missions.forEach((mission, index) => {
             mission.setPosition(25, 350 + index * 30);
@@ -394,12 +407,19 @@ class Phase2 {
     checkMissionCompletion(card) {
         const isPlacedOnTrashBin = card.col >= 7;
         const hasAllCardPlaced = this.scene.fixedUI.elementCardStack.isEmpty();
+        const isRightWeightOrder = this.scene.field.checkWeightRule();
         const isRightOxidationNumbers = this.scene.field.checkOxidationRule();
 
-        if (isRightOxidationNumbers) {
+        if (isRightWeightOrder) {
             this.missions[0].handleVaildCondition();
         } else {
             this.missions[0].handleInvaildCondition();
+        }
+
+        if (isRightOxidationNumbers) {
+            this.missions[1].handleVaildCondition();
+        } else {
+            this.missions[1].handleInvaildCondition();
         }
 
         const allMissionsCompleted = hasAllCardPlaced && isRightOxidationNumbers;
@@ -442,17 +462,18 @@ class Phase3 {
     }
 
     createCards() {
-        const stage3cardsIndex = [21, 31, 32, 43];
+        const stage2cardsIndex = [2, 10, 18, 36, 54];
 
-        for (const elementIndex of stage3cardsIndex) {
-            new EkaCard(Element.getElementByNumber(elementIndex), this.scene.fixedUI.elementCardStack, this.scene);
+        for (const elementIndex of stage2cardsIndex) {
+            new NobleCard(Element.getElementByNumber(elementIndex), this.scene.fixedUI.elementCardStack, this.scene);
         }
 
         this.scene.fixedUI.elementCardStack.sortAndUpdateCardsPosition();
+        this.scene.fixedUI.elementCardStack.setAllCardsCount(stage2cardsIndex.length);
     }
 
     createMissionTexts() {
-        this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소의 산화수 만족시키기"));
+        this.missions.push(new MissionText(this.scene, this.scene.fixedUI.container, "모든 원소 카드의 산화수 만족하기"));
 
         this.missions.forEach((mission, index) => {
             mission.setPosition(25, 350 + index * 30);

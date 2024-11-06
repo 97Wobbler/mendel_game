@@ -88,6 +88,7 @@ class Card {
 
         this.cardStack.removeCard(this);
         this.cardStack.updateCardsPosition();
+        this.cardStack.updateCounterText();
     }
 
     setDefaultBorder() {
@@ -139,6 +140,12 @@ class Card {
 
         const field = this.scene.field;
         field.updateHighlight();
+
+        if (this.scene.isGameEnd) {
+            if (this.inDeck) this.resetToDeck(); // 덱으로부터의 이동이었을 때
+            else this.revertToLastValidPosition(); // 필드로부터의 이동이었을 때
+            return;
+        }
 
         const { worldX, worldY } = pointer;
 

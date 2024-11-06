@@ -6,6 +6,34 @@ class CardStack {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.cards = [];
+
+        this.setCounterText();
+        this.allCardsCount = 0;
+    }
+
+    setCounterText() {
+        this.counterText = "";
+
+        const x = this.positionX + Card.width / 2;
+        const y = this.positionY + Card.height + 20;
+
+        this.counterTextObject = this.scene.add.text(x, y, this.counterText, {
+            font: "bold 20px Arial",
+            fill: "#E8E5D0",
+        });
+        this.counterTextObject.setOrigin(0.5, 0);
+        this.counterTextObject.setDepth(DEPTH.SPEECH_BUBBLE);
+        this.counterTextObject.setScrollFactor(0);
+    }
+
+    updateCounterText() {
+        this.counterText = `${this.cards.length} / ${this.allCardsCount}`;
+        this.counterTextObject.setText(this.counterText);
+    }
+
+    setAllCardsCount(number) {
+        this.allCardsCount = number;
+        this.updateCounterText();
     }
 
     // 스택에 카드 추가
@@ -46,5 +74,10 @@ class CardStack {
             card.setPositionBasedOnStackIndex(i);
             this.scene.children.bringToTop(card.container);
         }
+
+        const x = this.positionX + Card.width / 2;
+        const y = this.positionY + Card.height + 20;
+
+        this.counterTextObject.setPosition(x, y);
     }
 }

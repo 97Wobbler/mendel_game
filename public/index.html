@@ -57,7 +57,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 1);
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
@@ -146,7 +146,7 @@
             border-radius: 10px;
             text-align: center;
             width: 80%;
-            max-width: 600px;
+            max-width: 700px;
         }
 
         .slide {
@@ -157,10 +157,11 @@
         }
 
         #slideImage {
-            max-width: 100%;
+            max-width: 80%;
             border-radius: 10px;
         }
 
+        #prevSlideButton,
         #nextSlideButton,
         #confirmButton {
             padding: 10px 20px;
@@ -168,6 +169,7 @@
             margin-top: 10px;
         }
 
+        #prevSlideButton,
         #nextSlideButton,
         #confirmButton {
             background-color: #4CAF50;
@@ -177,6 +179,7 @@
             cursor: pointer;
         }
 
+        #prevSlideButton.hidden,
         #nextSlideButton.hidden,
         #confirmButton.hidden {
             display: none;
@@ -194,6 +197,7 @@
                     <p id="slideText">Description text goes here.</p>
                 </div>
             </div>
+            <button id="prevSlideButton" class="hidden">이전</button>
             <button id="nextSlideButton">다음</button>
             <button id="confirmButton" class="hidden">시작</button>
         </div>
@@ -209,9 +213,12 @@
 
     <!-- 시작 화면 -->
     <div id="start-screen">
-        <h1>Mendeleev's Card Game</h1>
-        <input type="text" id="player-name-input" placeholder="Enter your name" style="padding: 10px; font-size: 16px;">
-        <button id="start-button" style="padding: 10px 20px; font-size: 18px; margin-top: 20px;">Start Game</button>
+        <h1>멘델레예프 게임</h1>
+        <input type="text" id="player-name-input" placeholder="이름을 입력해 주세요." style="padding: 10px; font-size: 16px;">
+        <button id="start-button" style="padding: 10px 20px; font-size: 18px; margin-top: 20px;">Start</button>
+        <br>
+        <p>창을 새로고침하면 게임을 새로 시작할 수 있습니다. (진행 상황은 저장되지 않습니다.)</p>
+        <img src="img/refresh.jpg">
     </div>
 
     <!-- 게임 화면 -->

@@ -11,14 +11,15 @@ class UIManager {
         this.slideText = document.getElementById("slideText");
         this.nextSlideButton = document.getElementById("nextSlideButton");
         this.confirmButton = document.getElementById("confirmButton");
+        this.prevSlideButton = document.getElementById("prevSlideButton");
         this.slides = [];
         this.currentSlideIndex = 0;
 
         this.nextSlideButton.onclick = () => this.showNextSlide();
         this.confirmButton.onclick = () => this.hideOverlay();
+        this.prevSlideButton.onclick = () => this.showPrevSlide();
     }
 
-    // 팝업 표시
     showPopup(title, message, callback) {
         document.getElementById("popupTitle").innerText = title;
         document.getElementById("popupMessage").innerText = message;
@@ -55,9 +56,10 @@ class UIManager {
         this.overlayTitle.innerText = title;
         this.slides = slides;
         this.currentSlideIndex = 0;
-        this.overlayCallback = callback; // callback 저장
+        this.overlayCallback = callback;
         this.updateSlideContent();
         this.confirmButton.classList.add("hidden");
+        this.prevSlideButton.classList.add("hidden");
         this.stagePopupOverlay.classList.remove("hidden");
     }
 
@@ -73,16 +75,38 @@ class UIManager {
             this.updateSlideContent();
         }
 
+        this.prevSlideButton.classList.remove("hidden"); // 첫 슬라이드를 지나면 "이전" 버튼 표시
         if (this.currentSlideIndex === this.slides.length - 1) {
             this.nextSlideButton.classList.add("hidden");
             this.confirmButton.classList.remove("hidden");
+        } else {
+            this.nextSlideButton.classList.remove("hidden");
+            this.confirmButton.classList.add("hidden");
         }
+    }
+
+    showPrevSlide() {
+        if (this.currentSlideIndex > 0) {
+            this.currentSlideIndex--;
+            this.updateSlideContent();
+        }
+
+        // 첫 슬라이드에 도달했을 때 "이전" 버튼 숨기기
+        if (this.currentSlideIndex === 0) {
+            this.prevSlideButton.classList.add("hidden");
+        } else {
+            this.prevSlideButton.classList.remove("hidden");
+        }
+
+        this.nextSlideButton.classList.remove("hidden");
+        this.confirmButton.classList.add("hidden"); // 마지막 슬라이드가 아니므로 "시작" 버튼 숨김
     }
 
     updateSlideContent() {
         const slide = this.slides[this.currentSlideIndex];
         this.slideImage.src = slide.image;
-        this.slideText.innerText = slide.text;
+        this.slideText.innerHTML = slide.text;
         this.nextSlideButton.classList.toggle("hidden", this.currentSlideIndex >= this.slides.length - 1);
+        this.prevSlideButton.classList.toggle("hidden", this.currentSlideIndex === 0); // 첫 슬라이드에서 숨김 처리
     }
 }
