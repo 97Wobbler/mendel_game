@@ -17,7 +17,7 @@ class FixedUI {
     }
 
     setMissionDescriptionText() {
-        const text = "클리어 조건";
+        const text = "지켜야 할 규칙";
         this.text = this.scene.add.text(25, 300, text, {
             font: "bold 20px Arial",
             fill: "#E8E5D0",
