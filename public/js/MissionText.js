@@ -6,7 +6,7 @@ class MissionText {
 
         this.text = this.scene.add.text(0, 0, missionText, {
             font: "18px Arial",
-            fill: "#E8E5D0",
+            fill: "#807d65",
             padding: { x: 10, y: 10 },
             align: "center",
             wordWrap: { width: FixedUI.fixedUIWidth - 50 },
@@ -17,7 +17,7 @@ class MissionText {
     }
 
     handleVaildCondition() {
-        this.setColor("#E8E5D0");
+        this.setColor("#807d65");
     }
 
     handleInvaildCondition() {
